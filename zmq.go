@@ -30,6 +30,7 @@ var allowedTopics = []string{
 type subscriptionRequest struct {
 	topic string
 	ch    chan []string
+	done  chan bool
 }
 
 // ZMQ struct
@@ -69,7 +70,7 @@ func NewZMQWithContext(ctx context.Context, host string, port int, optionalLogge
 	return zmq
 }
 
-func (zmq *ZMQ) Subscribe(topic string, ch chan []string) error {
+func (zmq *ZMQ) Subscribe(topic string, ch chan []string, done chan bool) error {
 	if !contains(allowedTopics, topic) {
 		return fmt.Errorf("topic must be %+v, received %q", allowedTopics, topic)
 	}
@@ -77,6 +78,7 @@ func (zmq *ZMQ) Subscribe(topic string, ch chan []string) error {
 	zmq.addSubscription <- subscriptionRequest{
 		topic: topic,
 		ch:    ch,
+		done:  done,
 	}
 
 	return nil
@@ -140,6 +142,7 @@ func (zmq *ZMQ) start(ctx context.Context) {
 				subscribers = append(subscribers, req.ch)
 
 				zmq.subscriptions[req.topic] = subscribers
+				req.done <- true
 
 			case req := <-zmq.removeSubscription:
 				subscribers := zmq.subscriptions[req.topic]
