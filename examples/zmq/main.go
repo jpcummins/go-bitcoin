@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/ordishs/go-bitcoin"
+	"github.com/jpcummins/go-bitcoin"
 )
 
 func main() {
@@ -17,11 +17,12 @@ func main() {
 		}
 	}()
 
-	if err := zmq.Subscribe("hashtx", ch); err != nil {
+	done := make(chan bool)
+	if err := zmq.Subscribe("hashtx", ch, done); err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	if err := zmq.Subscribe("hashblock", ch); err != nil {
+	if err := zmq.Subscribe("hashblock", ch, done); err != nil {
 		log.Fatalf("%v", err)
 	}
 
