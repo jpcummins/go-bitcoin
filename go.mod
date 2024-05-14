@@ -1,4 +1,4 @@
-module github.com/ordishs/go-bitcoin
+module github.com/jpcummins/go-bitcoin
 
 go 1.17
 
